@@ -1,6 +1,4 @@
-![image](https://github.com/user-attachments/assets/47ebf728-742e-41e7-8ff0-50071f4a7f38)![image](https://github.com/user-attachments/assets/48b786f7-4b50-4256-95ee-396c8a80582a)# Projeto Fullstack de Autenticação
-
-![Projeto Fullstack](https://via.placeholder.com/800x400?text=Imagem+do+Projeto)
+# Projeto Fullstack de Autenticação
 
 Este é um projeto fullstack de autenticação composto por um backend em **NestJS** e um frontend em **React**. 
 Ele permite que os usuários se registrem, façam login e acessem recursos protegidos.
@@ -62,13 +60,18 @@ Realize o registro ou login para acessar os recursos protegidos.
 
 
 Tela de Login
-![image](https://github.com/user-attachments/assets/2d775af5-8912-462c-bd31-9a35da2620cf)
+
+![image](https://github.com/user-attachments/assets/ae79209c-a483-4c51-8244-f327af22ec31)
+
 
 Tela de Registro
-![image](https://github.com/user-attachments/assets/08a28361-3a96-4033-9c9a-d8b16886351f)
 
-Dashboard
-![image](https://github.com/user-attachments/assets/9c87e6ac-0584-4d27-9a44-c874d3076e53)
+![image](https://github.com/user-attachments/assets/1df698d9-726c-4b5f-894e-f5c8b87ab57e)
+
+
+Página principal
+
+![image](https://github.com/user-attachments/assets/fc351329-721e-4269-9e48-c60a4d154cff)
 
 
 📜 Scripts Úteis
