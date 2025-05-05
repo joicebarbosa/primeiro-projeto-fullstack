@@ -61,17 +61,20 @@ Realize o registro ou login para acessar os recursos protegidos.
 
 Tela de Login
 
-![image](https://github.com/user-attachments/assets/ae79209c-a483-4c51-8244-f327af22ec31)
+![image](https://github.com/user-attachments/assets/a892f145-fefa-454e-9cbb-1bc4f5bf4359)
+
 
 
 Tela de Registro
 
-![image](https://github.com/user-attachments/assets/1df698d9-726c-4b5f-894e-f5c8b87ab57e)
+![image](https://github.com/user-attachments/assets/09ab8fb1-5ca2-4846-8f0b-c0ea09505842)
+
 
 
 Página principal
 
-![image](https://github.com/user-attachments/assets/fc351329-721e-4269-9e48-c60a4d154cff)
+![image](https://github.com/user-attachments/assets/1718c710-2b52-422f-8e3d-aefb74fbf49b)
+
 
 
 📜 Scripts Úteis
