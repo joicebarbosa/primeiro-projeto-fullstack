@@ -4,11 +4,24 @@ import Signup from './components/Signup';
 import Login from './components/Login';
 import MainPage from './components/MainPage';
 import PrivateRoute from './components/PrivateRoute';
-import styles from './App.module.css'; // Importe os estilos
+import styles from './App.module.css';
 
 const App = () => {
   return (
-    <div className={styles.appContainer}> {/* Aplique a classe aqui */}
+    <div
+      className={styles.appContainer}
+      style={{
+        backgroundImage: `url('/assets/background.jpg')`, // Caminho a partir da raiz pública
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Router>
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
@@ -24,6 +37,3 @@ const App = () => {
 };
 
 export default App;
-
-
-// so para teStar o git        

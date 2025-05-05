@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Login from './componentes/Login';
 import Signup from './componentes/Signup';
 import MainPage from './componentes/MainPage';
-import styles from './App.module.css'; // Importe o arquivo de estilos
+import styles from './App.module.css'; 
 
 const App = () => {
   return (

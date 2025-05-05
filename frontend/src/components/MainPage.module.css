@@ -1,37 +1,111 @@
 .container {
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: center;
-   min-height: calc(100vh - /* altura do seu header/footer, se houver */ 0px); /* Ocupa a altura restante da tela */
-   padding: 20px;
-   color: #333; /* Cor do texto principal */
- }
- 
- .title {
-   font-size: 2.5em;
-   margin-bottom: 20px;
-   color: #007bff; /* Cor do título */
- }
- 
- .paragraph {
-   font-size: 1.2em;
-   margin-bottom: 30px;
-   text-align: center;
-   color: #555;
- }
- 
- .logoutButton {
-   padding: 10px 20px;
-   background-color: #dc3545; /* Cor vermelha para logout */
-   color: white;
-   border: none;
-   border-radius: 5px;
-   cursor: pointer;
-   font-size: 1em;
-   transition: background-color 0.3s ease;
- }
- 
- .logoutButton:hover {
-   background-color: #c82333;
- }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 0px); /* Ocupa a altura restante da tela */
+  padding: 20px;
+  color: #ddd; /* Cor do texto principal clara */
+  background-color: rgba(0, 0, 0, 0.6); /* Fundo preto translúcido */
+  backdrop-filter: blur(5px); /* Efeito de blur sutil */
+  border-radius: 8px; /* Adicionando um arredondamento sutil para o container */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Adicionando uma sombra suave */
+}
+
+.title {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: #00FFFF; /* Cor do título em ciano (estilo futurista) */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); /* Adicionando uma sombra ao texto para destacar */
+}
+
+.paragraph {
+  font-size: 1.2em;
+  margin-bottom: 15px; /* Reduzi um pouco a margem */
+  text-align: center;
+  color: #eee; /* Cor do parágrafo clara */
+}
+
+.logoutButton {
+  padding: 10px 20px;
+  background-color: #dc3545; /* Cor vermelha original para logout */
+  color: #eee; /* Texto branco/claro para contraste */
+  border: 1px solid #888; /* Adicionando uma borda clara sutil */
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold; /* Texto em negrito para destacar */
+  transition: background-color 0.3s ease;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Adicionando uma sombra suave ao botão */
+  margin-top: 20px; /* Adicionando um pouco de espaço acima do botão */
+}
+
+.logoutButton:hover {
+  background-color: #c82333; /* Cor original do hover */
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7); /* Aumentando um pouco a sombra no hover */
+}
+
+.error {
+  color: #FF4500; /* Vermelho alaranjado para erro */
+  margin-top: 10px;
+  font-size: 1em;
+}
+
+.actionsPanel {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.actionButton {
+  padding: 10px 15px;
+  background-color: #007bff; /* Cor primária para botões de ação */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+
+.actionButton:hover {
+  background-color: #0056b3;
+}
+
+.tipBox {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #eee;
+  border: 1px solid #444;
+}
+
+.tipText {
+  font-size: 0.9em;
+}
+
+.recentActivity {
+  margin-top: 30px;
+  color: #eee;
+  border-top: 1px solid #444;
+  padding-top: 20px;
+  width: 80%;
+  text-align: left;
+}
+
+.recentActivity h2 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.recentActivity ul {
+  list-style: none;
+  padding: 0;
+}
+
+.recentActivity li {
+  margin-bottom: 5px;
+  font-size: 0.95em;
+}
