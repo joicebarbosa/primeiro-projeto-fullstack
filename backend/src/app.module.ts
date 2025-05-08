@@ -7,13 +7,13 @@ import { AuthModule } from './auth/auth.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '1712',
-      database: 'usuario_db',
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
+      username: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '1712', 
+      database: process.env.DB_NAME || 'usuario_db', 
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // ⚠️ Não use em produção!
+      synchronize: false,
     }),
     UsersModule,
     AuthModule,

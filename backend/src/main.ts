@@ -1,7 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { config } from 'dotenv'; // Importe a função config
 
 async function bootstrap() {
+  config(); // Carregue as variáveis do arquivo .env
   const app = await NestFactory.create(AppModule, {
     cors: {
       origin: 'http://localhost:3001', // Permita apenas seu frontend
