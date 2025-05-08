@@ -1,15 +1,18 @@
+// main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { config } from 'dotenv'; // Importe a função config
+import { config } from 'dotenv';
 
 async function bootstrap() {
-  config(); // Carregue as variáveis do arquivo .env
+  config();
+  // Adiciona um atraso de alguns segundos (ex: 5 segundos)
+  await new Promise(resolve => setTimeout(resolve, 5000));
   const app = await NestFactory.create(AppModule, {
     cors: {
-      origin: 'http://localhost:3001', // Permita apenas seu frontend
+      origin: 'http://localhost:3001',
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-      credentials: true, // Se você precisar de cookies em cross-origin
-      allowedHeaders: 'Content-Type, Authorization', // Permita o cabeçalho Authorization
+      credentials: true,
+      allowedHeaders: 'Content-Type, Authorization',
     },
   });
   await app.listen(3000);
