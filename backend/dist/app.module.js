@@ -25,7 +25,7 @@ exports.AppModule = AppModule = __decorate([
                 password: process.env.DB_PASSWORD || '1712',
                 database: process.env.DB_NAME || 'usuario_db',
                 entities: [__dirname + '/**/*.entity{.ts,.js}'],
-                synchronize: false,
+                synchronize: true,
             }),
             users_module_1.UsersModule,
             auth_module_1.AuthModule,

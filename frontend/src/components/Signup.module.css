@@ -1,3 +1,5 @@
+/* Signup.module.css */
+
 .formContainer {
   display: flex;
   flex-direction: column;
@@ -20,20 +22,73 @@
 
 .input {
   padding: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 5px; /* Reduzi um pouco o margin-bottom do input */
   border: 1px solid #888;
   border-radius: 3px;
   font-size: 16px;
   color: #ddd; /* Texto claro */
-  background-color: rgba(255, 255, 255, 0.1); /* Fundo claro e translúcido para o input */
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* Fundo claro e translúcido para o input */
   transition: border-color 0.3s ease;
 }
 
 .input:focus {
   outline: none;
-  border-color: #00FFFF; /* Ciano para foco */
+  border-color: #00ffff; /* Ciano para foco */
   box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
   background-color: rgba(255, 255, 255, 0.2); /* Fundo mais claro no foco */
+}
+
+.instruction {
+  font-size: 0.8em; /* Diminui um pouco mais a fonte */
+  color: #aaa; /* Cor ainda mais discreta */
+  margin-top: 3px; /* Reduzi o margin-top */
+  margin-bottom: 10px; /* Mantive o margin-bottom para separar do próximo input */
+  text-align: left; /* Alinhei o texto à esquerda */
+}
+
+.passwordRequirements {
+  margin-top: 8px;
+  margin-bottom: 15px;
+  padding-left: 0; /* Removi o padding-left */
+  text-align: left; /* Garante o alinhamento à esquerda */
+  list-style: none;
+}
+
+.requirement {
+  font-size: 0.8em;
+  color: #aaa;
+  margin-bottom: 3px;
+  display: flex; /* Para alinhar o checkbox e o texto */
+  align-items: center; /* Alinhar verticalmente */
+  text-align: left; /* Força o alinhamento do texto à esquerda */
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-right: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9em;
+  color: transparent; /* Inicialmente invisível */
+}
+
+.requirement.valid .checkbox {
+  border-color: #4CAF50; /* Cor verde quando válido */
+  background-color: #4CAF50;
+  color: white; /* Cor do "check" */
+}
+
+.requirement.valid {
+  color: #4CAF50; /* Cor do texto quando válido */
 }
 
 .button {
@@ -53,17 +108,19 @@
 }
 
 .error {
-  color: #FF4500; /* Vermelho alaranjado para erro */
+  color: #ff4500; /* Vermelho alaranjado para erro */
   margin-top: 10px;
+  text-align: center; /* Centralizei as mensagens de erro */
 }
 
 .success {
-  color: #90EE90; /* Verde claro para sucesso */
+  color: #90ee90; /* Verde claro para sucesso */
   margin-top: 10px;
+  text-align: center; /* Centralizei a mensagem de sucesso */
 }
 
 .signupLink {
-  color: #00FFFF; /* Ciano para o link */
+  color: #00ffff; /* Ciano para o link */
   text-decoration: none;
   font-size: 14px;
 }
@@ -85,4 +142,5 @@ p {
   font-weight: bold;
   font-size: 14px;
   color: #eee; /* Texto claro para a label */
+  text-align: left; /* Alinhei as labels à esquerda também, se houver */
 }

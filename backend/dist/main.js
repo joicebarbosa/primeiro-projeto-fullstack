@@ -5,6 +5,7 @@ const app_module_1 = require("./app.module");
 const dotenv_1 = require("dotenv");
 async function bootstrap() {
     (0, dotenv_1.config)();
+    await new Promise(resolve => setTimeout(resolve, 5000));
     const app = await core_1.NestFactory.create(app_module_1.AppModule, {
         cors: {
             origin: 'http://localhost:3001',
