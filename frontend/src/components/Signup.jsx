@@ -11,10 +11,13 @@ const Signup = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // Estados para rastrear os requisitos da senha
     const [hasMinMaxChars, setHasMinMaxChars] = useState(false);
     const [hasUpperCase, setHasUpperCase] = useState(false);
     const [hasSymbol, setHasSymbol] = useState(false);
+    const [isUsernameValid, setIsUsernameValid] = useState(false);
+    const [usernameFormatError, setUsernameFormatError] = useState('');
+    const [usernameTouched, setUsernameTouched] = useState(false);
+    const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
 
     // Novo estado para a validação do formato do username
     const [isUsernameFormatValid, setIsUsernameFormatValid] = useState(false);
@@ -24,12 +27,12 @@ const Signup = () => {
 
     useEffect(() => {
         // Validação da senha em tempo real
+=======
         const validatePassword = (pwd) => {
             setHasMinMaxChars(pwd.length >= 8 && pwd.length <= 70);
             setHasUpperCase(/[A-Z]/.test(pwd));
             setHasSymbol(/[!@#$%^&*(),.?":{}|<>]/.test(pwd));
         };
-
         // Validação do username em tempo real
         const validateUsername = (uname) => {
             const regex = /^[a-zA-Z]+\.[a-zA-Z]+$/;
@@ -73,6 +76,24 @@ const Signup = () => {
         // -- FIM DOS CONSOLE.LOGS DE DEBUG GERAIS DO FORMULÁRIO --
 
     }, [username, password, hasMinMaxChars, hasUpperCase, hasSymbol, isUsernameFormatValid]); // Adicionei todos os estados de validação como dependências
+        validatePassword(password);
+
+        const validateUsernameFormat = (uname) => {
+            if (!/^[a-zA-Z]+\.[a-zA-Z]+$/.test(uname)) {
+                setIsUsernameValid(false);
+                setUsernameFormatError('O nome de usuário deve ser no formato: nome.sobrenome');
+            } else {
+                setIsUsernameValid(true);
+                setUsernameFormatError('');
+            }
+        };
+        validateUsernameFormat(username);
+    }, [username, password]);
+
+    const handleUsernameChange = (e) => {
+        setUsername(e.target.value);
+        setUsernameTouched(true);
+    };
 
     const handleSignup = async (e) => {
         e.preventDefault();
@@ -162,6 +183,40 @@ const Signup = () => {
                     <span className={styles.checkbox}>{hasSymbol ? '✓' : '✗'}</span>
                     Pelo menos um símbolo (Ex: !@#$%&*).
                 </p>
+            <div className={styles.usernameContainer}>
+                <label htmlFor="username" className={styles.label}>Username:</label>
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Username"
+                    value={username}
+                    onChange={handleUsernameChange}
+                    className={styles.input}
+                    onBlur={() => setUsernameTouched(true)}
+                    aria-label="Username"
+                    aria-describedby={usernameTouched && !isUsernameValid ? "usernameError" : null}
+                />
+                {isUsernameValid && <span className={styles.usernameValidCheck}>✓</span>}
+            </div>
+            {usernameTouched && !isUsernameValid && <p className={styles.error} id="usernameError">{usernameFormatError}</p>}
+
+            <div className={styles.inputContainer}>
+                <label htmlFor="password" className={styles.label}>Password:</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={styles.input}
+                    aria-label="Password"
+                    onFocus={() => setShowPasswordRequirements(true)}
+                    onBlur={() => {
+                        if (!password) {
+                            setShowPasswordRequirements(false);
+                        }
+                    }}
+                />
             </div>
             {password.trim() === '' && errors.includes('A senha não pode estar vazia.') && (
                 <p className={styles.validationError}>A senha não pode estar vazia.</p>
@@ -170,6 +225,34 @@ const Signup = () => {
             {/* Botão de Cadastro */}
             {/* O disabled agora considera o loading E a validação do formulário */}
             <button type="submit" disabled={loading || !isFormValid} className={styles.button}>
+            {showPasswordRequirements && (
+                <div className={`${styles.passwordRequirements} ${showPasswordRequirements ? styles.visible : ''}`}>
+                    <p className={styles.requirement} style={{ color: hasMinMaxChars ? '#4caf50' : '#aaa' }}>
+                        <span className={styles.checkbox} style={{ borderColor: hasMinMaxChars ? '#4caf50' : '#ccc', backgroundColor: hasMinMaxChars ? '#4caf50' : 'transparent', color: hasMinMaxChars ? 'white' : 'transparent' }}>
+                            {hasMinMaxChars && '✓'}
+                        </span>
+                        A senha deve ter no mínimo 8 e máximo 70 caracteres.
+                    </p>
+                    <p className={styles.requirement} style={{ color: hasUpperCase ? '#4caf50' : '#aaa' }}>
+                        <span className={styles.checkbox} style={{ borderColor: hasUpperCase ? '#4caf50' : '#ccc', backgroundColor: hasUpperCase ? '#4caf50' : 'transparent', color: hasUpperCase ? 'white' : 'transparent' }}>
+                            {hasUpperCase && '✓'}
+                        </span>
+                        A senha deve ter pelo menos uma letra maiúscula.
+                    </p>
+                    <p className={styles.requirement} style={{ color: hasSymbol ? '#4caf50' : '#aaa' }}>
+                        <span className={styles.checkbox} style={{ borderColor: hasSymbol ? '#4caf50' : '#ccc', backgroundColor: hasSymbol ? '#4caf50' : 'transparent', color: hasSymbol ? 'white' : 'transparent' }}>
+                            {hasSymbol && '✓'}
+                        </span>
+                        A senha deve ter pelo menos um símbolo. Ex: !#$%"&
+                    </p>
+                </div>
+            )}
+
+            <button
+                type="submit"
+                disabled={loading || !(hasMinMaxChars && hasUpperCase && hasSymbol && isUsernameValid)}
+                className={styles.button}
+            >
                 {loading ? 'Cadastrando...' : 'Cadastrar'}
             </button>
 
