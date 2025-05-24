@@ -16,48 +16,42 @@ exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const user_entity_1 = require("./user.entity");
-const bcrypt = require("bcrypt");
+const user_entity_1 = require("../users/user.entity");
+const bcrypt = require("bcryptjs");
 let UsersService = class UsersService {
     usersRepository;
-    login(username, password) {
-        throw new Error('Method not implemented.');
-    }
     constructor(usersRepository) {
         this.usersRepository = usersRepository;
     }
-    async validateUser(username, password) {
-        const user = await this.usersRepository.findOne({ where: { username } });
-        if (!user) {
-            return null;
-        }
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return null;
-        }
-        return user;
-    }
-    async createUser(username, password) {
-        const existingUser = await this.usersRepository.findOne({
-            where: { username },
-        });
+    async signup(signupDto) {
+        const { username, password } = signupDto;
+        const existingUser = await this.usersRepository.findOne({ where: { username } });
         if (existingUser) {
-            throw new common_1.HttpException('Usuário já existe', common_1.HttpStatus.BAD_REQUEST);
+            throw new common_1.ConflictException('Nome de usuário já existe.');
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = this.usersRepository.create({
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const user = this.usersRepository.create({
             username,
             password: hashedPassword,
         });
-        await this.usersRepository.save(newUser);
-        return newUser;
+        await this.usersRepository.save(user);
+        const { password: _, ...result } = user;
+        return result;
     }
-    async signup(username, password) {
-        const newUser = await this.createUser(username, password);
-        return { id: newUser.id, username: newUser.username };
+    async findOneByUsername(username) {
+        return this.usersRepository.findOne({ where: { username } });
     }
-    async findById(id) {
-        return await this.usersRepository.findOne({ where: { id } });
+    async findOneById(id) {
+        return this.usersRepository.findOne({ where: { id } });
+    }
+    async validateUserCredentials(username, pass) {
+        const user = await this.findOneByUsername(username);
+        if (user && await bcrypt.compare(pass, user.password)) {
+            const { password, ...result } = user;
+            return result;
+        }
+        return null;
     }
 };
 exports.UsersService = UsersService;

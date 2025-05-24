@@ -1,14 +1,11 @@
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from '../users/user.entity';
+import { SignupDto } from '../auth/dto/signup.dto';
 export declare class UsersService {
     private usersRepository;
-    login(username: string, password: string): void;
     constructor(usersRepository: Repository<User>);
-    validateUser(username: string, password: string): Promise<User | null>;
-    createUser(username: string, password: string): Promise<User>;
-    signup(username: string, password: string): Promise<{
-        id: number;
-        username: string;
-    }>;
-    findById(id: number): Promise<User | null>;
+    signup(signupDto: SignupDto): Promise<User>;
+    findOneByUsername(username: string): Promise<User | null>;
+    findOneById(id: number): Promise<User | null>;
+    validateUserCredentials(username: string, pass: string): Promise<User | null>;
 }

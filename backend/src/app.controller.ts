@@ -1,17 +1,18 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { AuthService } from './auth/auth.service';
+import { Controller, Get } from '@nestjs/common';
+import { AppService } from './app.service';
 
-@Controller('auth')
-export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+@Controller() // <--- CERTIFIQUE-SE DE QUE ESTÁ VAZIO OU COM O PREFIXO CORRETO SE VOCÊ MUDOU
+export class AppController {
+  constructor(private readonly appService: AppService) {}
 
-    @Post('signup')
-    async signup(@Body() body: { username: string; password: string }) {
-        return this.authService.signup(body.username, body.password);
-    }
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
 
-    @Post('login')
-    async login(@Body() body: { username: string; password: string }) {
-        return this.authService.login(body.username, body.password);
-    }
+  // NOVA ROTA DE TESTE
+  @Get('api/teste') // O caminho para esta rota será /api/teste
+  getTeste(): string {
+    return 'Olá do Backend! A comunicação está funcionando.';
+  }
 }

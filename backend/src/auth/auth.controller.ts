@@ -1,36 +1,29 @@
-import { Controller, Post, Body, Get, ValidationPipe } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { SignupDto } from './dto/signup.dto'; 
-import { LoginDto } from './dto/login.dto';   // Importe o DTO se estiver em arquivo separado
+import { Controller, Post, Body, Get, UseGuards, Req, Res } from '@nestjs/common';
+import { AuthService } from './auth.service'; // Importe o AuthService
+import { SignupDto } from '../auth/dto/signup.dto';
+import { LoginDto } from '../auth/dto/login.dto'; 
+import { AuthGuard } from '@nestjs/passport'; // Para o login com Passport
 
-
-@Controller('auth') // Prefixo da rota
+@Controller('auth') // Mudei para 'auth' se seu frontend estiver chamando /auth/signup e /auth/login
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('signup') // Rota para signup
-  async signup(@Body(ValidationPipe) body: SignupDto) { // Use ValidationPipe aqui
-    return this.authService.signup(body.username, body.password);
+  @Post('signup') // Rota: /auth/signup
+  async signup(@Body() signupDto: SignupDto) {
+    return this.authService.register(signupDto); // Chama o método register do AuthService
   }
 
-  @Post('login') // Rota para login
-  async login(@Body() body: LoginDto) {
-    return this.authService.login(body.username, body.password);
+  @Post('login') // Rota: /auth/login
+  @UseGuards(AuthGuard('local')) // Use AuthGuard('local') se você tiver uma LocalStrategy
+  async login(@Req() req) { // O @Req() req terá o usuário validado pelo LocalStrategy
+    // Se você estiver usando Passport Local Strategy, o usuário já estará em req.user
+    return this.authService.login(req.user); // Chama o método login do AuthService
   }
 
-  @Get('signup') // Rota para instruções de signup
-  getSignupInstructions() {
-    return {
-      message:
-        'Use o método POST para /auth/signup com o corpo: { "username": "seu_usuario", "password": "sua_senha" }',
-    };
-  }
-
-  @Get('login') // Rota para instruções de login
-  getLoginInstructions() {
-    return {
-      message:
-        'Use o método POST para /auth/login com o corpo: { "username": "seu_usuario", "password": "sua_senha" }',
-    };
-  }
+  // Exemplo de rota protegida por JWT (se você tiver)
+  // @Get('profile')
+  // @UseGuards(AuthGuard('jwt'))
+  // getProfile(@Req() req) {
+  //   return req.user;
+  // }
 }

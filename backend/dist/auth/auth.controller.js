@@ -15,57 +15,36 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
-const signup_dto_1 = require("./dto/signup.dto");
-const login_dto_1 = require("./dto/login.dto");
+const signup_dto_1 = require("../auth/dto/signup.dto");
+const passport_1 = require("@nestjs/passport");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
         this.authService = authService;
     }
-    async signup(body) {
-        return this.authService.signup(body.username, body.password);
+    async signup(signupDto) {
+        return this.authService.register(signupDto);
     }
-    async login(body) {
-        return this.authService.login(body.username, body.password);
-    }
-    getSignupInstructions() {
-        return {
-            message: 'Use o método POST para /auth/signup com o corpo: { "username": "seu_usuario", "password": "sua_senha" }',
-        };
-    }
-    getLoginInstructions() {
-        return {
-            message: 'Use o método POST para /auth/login com o corpo: { "username": "seu_usuario", "password": "sua_senha" }',
-        };
+    async login(req) {
+        return this.authService.login(req.user);
     }
 };
 exports.AuthController = AuthController;
 __decorate([
     (0, common_1.Post)('signup'),
-    __param(0, (0, common_1.Body)(common_1.ValidationPipe)),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [signup_dto_1.SignupDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "signup", null);
 __decorate([
     (0, common_1.Post)('login'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('local')),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [login_dto_1.LoginDto]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
-__decorate([
-    (0, common_1.Get)('signup'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "getSignupInstructions", null);
-__decorate([
-    (0, common_1.Get)('login'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "getLoginInstructions", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])

@@ -1,17 +1,11 @@
 import { UsersService } from './users.service';
+import { SignupDto } from '../auth/dto/signup.dto';
+import { LoginDto } from '../auth/dto/login.dto';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
-    signup(body: {
-        username: string;
-        password: string;
-    }): Promise<{
-        id: number;
-        username: string;
+    signup(signupDto: SignupDto): Promise<import("./user.entity").User>;
+    login(loginDto: LoginDto): Promise<{
+        message: string;
     }>;
-    login(body: {
-        username: string;
-        password: string;
-    }): Promise<void>;
-    getProfile(req: any): Promise<any>;
 }

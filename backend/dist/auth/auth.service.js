@@ -11,8 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
-const jwt_1 = require("@nestjs/jwt");
 const users_service_1 = require("../users/users.service");
+const jwt_1 = require("@nestjs/jwt");
 let AuthService = class AuthService {
     usersService;
     jwtService;
@@ -20,17 +20,29 @@ let AuthService = class AuthService {
         this.usersService = usersService;
         this.jwtService = jwtService;
     }
-    async signup(username, password) {
-        return this.usersService.createUser(username, password);
+    async register(signupDto) {
+        return this.usersService.signup(signupDto);
     }
-    async login(username, password) {
-        const user = await this.usersService.validateUser(username, password);
+    async validateUser(username, pass) {
+        const user = await this.usersService.validateUserCredentials(username, pass);
         if (!user) {
-            throw new common_1.HttpException('Invalid credentials', common_1.HttpStatus.UNAUTHORIZED);
+            return null;
         }
+        return user;
+    }
+    async login(user) {
         const payload = { username: user.username, sub: user.id };
-        const access_token = this.jwtService.sign(payload);
-        return { access_token };
+        return {
+            access_token: this.jwtService.sign(payload),
+        };
+    }
+    async validateUserByPayload(payload) {
+        const user = await this.usersService.findOneById(payload.sub);
+        if (!user) {
+            throw new common_1.UnauthorizedException();
+        }
+        const { password, ...result } = user;
+        return result;
     }
 };
 exports.AuthService = AuthService;

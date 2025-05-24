@@ -1,12 +1,11 @@
-// main.ts
+// backend/src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { config } from 'dotenv';
+import { ValidationPipe } from '@nestjs/common'; // Importe o ValidationPipe
 
 async function bootstrap() {
   config();
-  // Adiciona um atraso de alguns segundos (ex: 5 segundos)
-  await new Promise(resolve => setTimeout(resolve, 5000));
   const app = await NestFactory.create(AppModule, {
     cors: {
       origin: 'http://localhost:3001',
@@ -15,6 +14,14 @@ async function bootstrap() {
       allowedHeaders: 'Content-Type, Authorization',
     },
   });
-  await app.listen(3000);
+
+  // Adicione o ValidationPipe globalmente para que as validações dos DTOs funcionem
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true, // Remove propriedades que não estão no DTO
+    forbidNonWhitelisted: true, // Lança erro se houver propriedades não whitelistadas
+    transform: true, // Transforma o payload em uma instância do DTO
+  }));
+
+  await app.listen(3000); // Ou 4000, dependendo do que você configurou
 }
 void bootstrap();

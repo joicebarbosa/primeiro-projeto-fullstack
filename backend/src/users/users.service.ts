@@ -1,61 +1,56 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity'; // Certifique-se de que você tenha uma entidade User
-import * as bcrypt from 'bcrypt';
+import { User } from '../users/user.entity'; // Certifique-se de que o caminho está correto
+import { SignupDto } from '../auth/dto/signup.dto'; 
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
-  login(username: string, password: string) {
-    throw new Error('Method not implemented.');
-  }
-
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<User | null> {
-    const user = await this.usersRepository.findOne({ where: { username } });
-    if (!user) {
-      return null; // Retorna null se o usuário não for encontrado
-    }
+  async signup(signupDto: SignupDto): Promise<User> {
+    const { username, password } = signupDto;
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return null; // Retorna null se a senha for inválida
-    }
-
-    return user; // Retorna o usuário se a senha estiver correta
-  }
-
-  async createUser(username: string, password: string): Promise<User> {
-    const existingUser = await this.usersRepository.findOne({
-      where: { username },
-    });
+    const existingUser = await this.usersRepository.findOne({ where: { username } });
     if (existingUser) {
-      throw new HttpException('Usuário já existe', HttpStatus.BAD_REQUEST);
+      throw new ConflictException('Nome de usuário já existe.');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // Hash da senha
-    const newUser = this.usersRepository.create({
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = this.usersRepository.create({
       username,
       password: hashedPassword,
     });
-    await this.usersRepository.save(newUser);
-    return newUser; // Retorna o novo usuário
+
+    await this.usersRepository.save(user);
+
+    const { password: _, ...result } = user;
+    return result as User;
   }
 
-  async signup(
-    username: string,
-    password: string,
-  ): Promise<{ id: number; username: string }> {
-    const newUser = await this.createUser(username, password);
-    return { id: newUser.id, username: newUser.username }; // Retorna o id e o username do novo usuário
+  // MÉTODO ORIGINAL: Encontrar usuário por username
+  async findOneByUsername(username: string): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { username } });
   }
 
-  // Novo método para buscar um usuário pelo ID
-  async findById(id: number): Promise<User | null> {
-    return await this.usersRepository.findOne({ where: { id } });
+  // MÉTODO NOVO: Encontrar usuário por ID (para JWT Strategy)
+  async findOneById(id: number): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { id } });
+  }
+
+  // NOVO MÉTODO: Validar credenciais do usuário para login
+  async validateUserCredentials(username: string, pass: string): Promise<User | null> {
+    const user = await this.findOneByUsername(username); // Usando o novo nome do método
+    if (user && await bcrypt.compare(pass, user.password)) {
+      const { password, ...result } = user;
+      return result as User; // Retorna o usuário sem a senha hashed
+    }
+    return null; // Credenciais inválidas
   }
 }
