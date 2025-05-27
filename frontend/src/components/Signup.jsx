@@ -27,7 +27,6 @@ const Signup = () => {
 
     useEffect(() => {
         // Validação da senha em tempo real
-=======
         const validatePassword = (pwd) => {
             setHasMinMaxChars(pwd.length >= 8 && pwd.length <= 70);
             setHasUpperCase(/[A-Z]/.test(pwd));
