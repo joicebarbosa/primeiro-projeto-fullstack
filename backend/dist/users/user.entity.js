@@ -26,7 +26,6 @@ __decorate([
     (0, typeorm_1.Column)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsAlphanumeric)(),
     __metadata("design:type", String)
 ], User.prototype, "username", void 0);
 __decorate([

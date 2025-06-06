@@ -1,9 +1,10 @@
+// backend/src/auth/auth.service.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service'; // CONFIRME O CAMINHO AQUI
+import { UsersService } from '../users/users.service'; // Certifique-se de que o caminho está correto
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { SignupDto } from '../auth/dto/signup.dto'; // CONFIRME O CAMINHO AQUI
-import { LoginDto } from '../auth/dto/login.dto'; // CONFIRME O CAMINHO AQUI
+import { SignupDto } from '../auth/dto/signup.dto';
+import { LoginDto } from '../auth/dto/login.dto'; // Importe LoginDto
 
 @Injectable()
 export class AuthService {
@@ -12,36 +13,45 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  // Método para registro (AuthService.register)
   async register(signupDto: SignupDto): Promise<any> {
-    return this.usersService.signup(signupDto); // Chama o UsersService.signup
+    return this.usersService.signup(signupDto);
   }
 
-  // Método para validar usuário durante o processo de login
+  // Valida o usuário para o processo de login (usado pela LocalStrategy)
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.validateUserCredentials(username, pass); // Chama o UsersService.validateUserCredentials
+    console.log('AuthService: validateUser chamado para username:', username);
+    const user = await this.usersService.validateUserCredentials(username, pass);
     if (!user) {
+      console.log('AuthService: validateUser: Usuário NÃO validado. Credenciais inválidas.');
       return null;
     }
-    return user;
+    console.log('AuthService: validateUser: Usuário validado com sucesso:', user.username);
+    // Retorna o usuário. O AuthController.login usará este objeto.
+    return user; 
   }
 
-  // Método de login (AuthService.login) - recebe o usuário validado
-  async login(user: any) { // Recebe o objeto 'user' que já foi validado
-    const payload = { username: user.username, sub: user.id };
+  // Gera o token JWT após a validação do usuário
+  async login(user: any) {
+    console.log('AuthService: login chamado para gerar JWT para usuário:', user.username);
+    // Payload do token JWT. 'sub' geralmente é o ID do usuário.
+    const payload = { username: user.username, sub: user.id }; 
+    const token = this.jwtService.sign(payload); // Assina o token
+    console.log('AuthService: JWT gerado com sucesso para', user.username, 'Token:', token);
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: token, // Retorna o token com a chave 'access_token'
     };
   }
 
-  // NOVO MÉTODO: Para validar o usuário pelo payload do JWT
+  // Valida o usuário a partir do payload do JWT (usado pela JwtStrategy)
   async validateUserByPayload(payload: any): Promise<any> {
-    // Aqui usamos o findOneById que adicionamos no UsersService
-    const user = await this.usersService.findOneById(payload.sub); // Assume que payload.sub é o ID
+    // Busca o usuário pelo ID (sub) no seu UsersService
+    const user = await this.usersService.findOneById(payload.sub); 
     if (!user) {
       throw new UnauthorizedException();
     }
-    const { password, ...result } = user;
-    return result;
+    // Remove a senha hashed do objeto do usuário antes de retorná-lo
+    // para que dados sensíveis não sejam expostos em req.user
+    const { password, ...result } = user; 
+    return result; 
   }
 }

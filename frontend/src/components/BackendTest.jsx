@@ -10,9 +10,9 @@ const BackendTest = () => {
         const response = await axios.get('http://localhost:4000/api/teste'); // <-- Mude a porta para 4000
         setBackendMessage(response.data);
       } catch (error) {
-        console.error('Erro ao conectar com o backend:', error);
-        setBackendMessage('Erro ao carregar mensagem do backend. Verifique o console.');
-      }
+      console.error('Erro ao fazer login', error.response?.data?.message || 'Erro desconhecido');
+      setError(error.response?.data?.message || 'Usuário ou senha incorretos.');
+    }
     };
 
     fetchBackendMessage();

@@ -1,28 +1,26 @@
-import { Controller, Post, Body, Get, UseGuards, Req, Res } from '@nestjs/common';
+// backend/src/users/users.controller.ts
+import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { SignupDto } from '../auth/dto/signup.dto'; // Importe seu DTO de Signup
-import { LoginDto } from '../auth/dto/login.dto'; // Importe seu DTO de Login
-// import { AuthGuard } from '@nestjs/passport'; // Se você estiver usando passport para login
-// import { Request, Response } from 'express'; // Se precisar de tipagem para req/res
+import { SignupDto } from '../auth/dto/signup.dto';
+import { AuthGuard } from '@nestjs/passport'; // Importe AuthGuard
 
-@Controller('users') // Prefixo para todas as rotas deste controller. Ex: /users/signup
+@Controller('users') 
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('signup') // Rota: /users/signup
+  @Post('signup') 
   async signup(@Body() signupDto: SignupDto) {
-    // As validações do SignupDto (username, password) serão AUTOMATICAMENTE aplicadas aqui
-    // pelo ValidationPipe global do NestJS (que você provavelmente configurou no main.ts).
-    // Se a validação falhar, o NestJS lançará um BadRequestException.
-
-    return this.usersService.signup(signupDto); // Chama o serviço para criar o usuário
+    return this.usersService.signup(signupDto); 
   }
 
-  @Post('login') // Rota: /users/login
-  async login(@Body() loginDto: LoginDto) {
-    // Implemente a lógica de login aqui (você provavelmente já tem isso)
-    // Ex: return this.usersService.login(loginDto.username, loginDto.password);
-    return { message: 'Login de exemplo! Implemente a lógica real aqui.' };
+  // Rota PROTEGIDA para obter o perfil do usuário logado
+  @Get('me') // Acessível em GET http://localhost:3000/users/me
+  @UseGuards(AuthGuard('jwt')) // Garante que apenas usuários com um JWT válido podem acessar
+  getProfile(@Req() req) {
+    // Quando AuthGuard('jwt') é usado, o Passport injeta o objeto do usuário (retornado pela JwtStrategy.validate) em req.user.
+    // Este objeto já deve vir sem a senha.
+    return req.user; 
   }
 
+  // Remova qualquer outro método 'login' aqui, pois ele deve estar no AuthController.
 }

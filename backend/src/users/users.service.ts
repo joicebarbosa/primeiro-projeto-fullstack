@@ -1,56 +1,77 @@
-import { Injectable, ConflictException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from '../users/user.entity'; // Certifique-se de que o caminho está correto
-import { SignupDto } from '../auth/dto/signup.dto'; 
+// backend/src/users/users.service.ts
+// ... (imports como Prisma, bcrypt, etc.)
+import { Injectable, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import { PrismaService } from '../prisma/prisma.service'; // Se estiver usando Prisma
+import { SignupDto } from '../auth/dto/signup.dto'; // Se estiver usando DTO
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-  ) {}
+  constructor(private prisma: PrismaService) {} // Injetando o PrismaService
 
-  async signup(signupDto: SignupDto): Promise<User> {
-    const { username, password } = signupDto;
-
-    const existingUser = await this.usersRepository.findOne({ where: { username } });
-    if (existingUser) {
-      throw new ConflictException('Nome de usuário já existe.');
+  async signup(signupDto: SignupDto): Promise<any> {
+    const hashedPassword = await bcrypt.hash(signupDto.password, 10);
+    try {
+      const newUser = await this.prisma.user.create({
+        data: {
+          username: signupDto.username,
+          password: hashedPassword,
+          email: signupDto.email, // Se você tiver email no DTO
+          firstName: signupDto.firstName, // Se você tiver firstName
+          lastName: signupDto.lastName, // Se você tiver lastName
+        },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          createdAt: true,
+        },
+      });
+      return newUser;
+    } catch (error) {
+      if (error.code === 'P2002') { // Erro de unique constraint (ex: username já existe)
+        throw new BadRequestException('Nome de usuário ou email já em uso.');
+      }
+      throw error;
     }
+  }
 
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const user = this.usersRepository.create({
-      username,
-      password: hashedPassword,
+  async validateUserCredentials(username: string, pass: string): Promise<any | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
     });
-
-    await this.usersRepository.save(user);
-
-    const { password: _, ...result } = user;
-    return result as User;
-  }
-
-  // MÉTODO ORIGINAL: Encontrar usuário por username
-  async findOneByUsername(username: string): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { username } });
-  }
-
-  // MÉTODO NOVO: Encontrar usuário por ID (para JWT Strategy)
-  async findOneById(id: number): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { id } });
-  }
-
-  // NOVO MÉTODO: Validar credenciais do usuário para login
-  async validateUserCredentials(username: string, pass: string): Promise<User | null> {
-    const user = await this.findOneByUsername(username); // Usando o novo nome do método
-    if (user && await bcrypt.compare(pass, user.password)) {
-      const { password, ...result } = user;
-      return result as User; // Retorna o usuário sem a senha hashed
+    if (!user) {
+      console.log(`UsersService: validateUserCredentials: Usuário NÃO encontrado no DB: ${username}`);
+      return null;
     }
-    return null; // Credenciais inválidas
+    console.log(`UsersService: validateUserCredentials: Usuário encontrado: ${username}`);
+
+    const isMatch = await bcrypt.compare(pass, user.password);
+    if (!isMatch) {
+      console.log(`UsersService: validateUserCredentials: Senha INCORRETA para ${username}`);
+      return null;
+    }
+    console.log(`UsersService: validateUserCredentials: Senha CORRETA para ${username}`);
+
+    const { password, ...result } = user;
+    return result; // Retorna o usuário sem a senha hashed
+  }
+
+  // MÉTODO IMPORTANTE PARA JwtStrategy e UsersController.getProfile
+  async findOneById(id: number): Promise<any | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        createdAt: true,
+      },
+    });
+    return user; // Já retorna sem a senha por causa do 'select'
   }
 }

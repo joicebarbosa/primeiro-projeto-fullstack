@@ -46,12 +46,21 @@ let UsersService = class UsersService {
         return this.usersRepository.findOne({ where: { id } });
     }
     async validateUserCredentials(username, pass) {
+        console.log('UsersService: validateUserCredentials chamado para username:', username);
         const user = await this.findOneByUsername(username);
-        if (user && await bcrypt.compare(pass, user.password)) {
-            const { password, ...result } = user;
-            return result;
+        if (!user) {
+            console.log('UsersService: validateUserCredentials: Usuário NÃO encontrado no DB:', username);
+            return null;
         }
-        return null;
+        console.log('UsersService: validateUserCredentials: Usuário encontrado:', user.username);
+        const isPasswordMatching = await bcrypt.compare(pass, user.password);
+        if (!isPasswordMatching) {
+            console.log('UsersService: validateUserCredentials: Senha INCORRETA para', username);
+            return null;
+        }
+        console.log('UsersService: validateUserCredentials: Senha CORRETA para', username);
+        const { password, ...result } = user;
+        return result;
     }
 };
 exports.UsersService = UsersService;

@@ -1,15 +1,15 @@
-// backend/src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { config } from 'dotenv';
-import { ValidationPipe } from '@nestjs/common'; // Importe o ValidationPipe
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  config();
+  config(); // Carrega as variáveis de ambiente do .env
+
   const app = await NestFactory.create(AppModule, {
     cors: {
-      origin: 'http://localhost:3001',
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      origin: 'http://localhost:3001', // A URL do seu frontend
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // <-- ADICIONADO 'OPTIONS' AQUI
       credentials: true,
       allowedHeaders: 'Content-Type, Authorization',
     },
@@ -22,6 +22,6 @@ async function bootstrap() {
     transform: true, // Transforma o payload em uma instância do DTO
   }));
 
-  await app.listen(3000); // Ou 4000, dependendo do que você configurou
+  await app.listen(3000); // Certifique-se de que esta é a porta que seu backend está ouvindo
 }
 void bootstrap();

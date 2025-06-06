@@ -4,19 +4,24 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './strategies/jwt.strategy'; // Importe CORRETAMENTE a JwtStrategy
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy'; // <-- NOVA IMPORTAÇÃO AQUI
 
 @Module({
   imports: [
     UsersModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'default_secret',
+      secret: process.env.JWT_SECRET || 'default_secret', // Lembre-se de usar uma variável de ambiente real em produção!
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  providers: [AuthService, JwtStrategy], // Declare a JwtStrategy como provider
+  providers: [
+    AuthService,
+    JwtStrategy,
+    LocalStrategy, // <-- ADICIONE A LOCALSTRATEGY AQUI
+  ],
   controllers: [AuthController],
-  exports: [AuthService], // Exporte o AuthService (JwtStrategy é usado internamente pelo Passport)
+  exports: [AuthService],
 })
 export class AuthModule {}

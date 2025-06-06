@@ -1,129 +1,109 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import styles from './Signup.module.css';
+import styles from './Signup.module.css'; // Certifique-se de que o caminho está correto
+
+// --- REGEX PARA VALIDAÇÃO NO FRONT-END ---
+// Regex para validar o formato nome.sobrenome
+const USERNAME_REGEX = /^[a-zA-Z]+\.[a-zA-Z]+$/;
+
+// Regex para caracteres especiais na senha (alinhada com o backend)
+// Sua regex no backend: /(?=.*[!@#$%^&*(),.?":{}|<>])/, então usamos os mesmos caracteres
+const SYMBOL_REGEX = /[!@#$%^&*(),.?":{}|<>]/;
+
 
 const Signup = () => {
+    // --- ESTADOS ---
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [errors, setErrors] = useState([]);
+    const [errors, setErrors] = useState([]); // Para erros do backend ou validação inicial do front-end
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const [hasMinMaxChars, setHasMinMaxChars] = useState(false);
+    // Estados para rastrear os requisitos da senha em tempo real (feedback visual)
+    const [hasMinChars, setHasMinChars] = useState(false);
     const [hasUpperCase, setHasUpperCase] = useState(false);
     const [hasSymbol, setHasSymbol] = useState(false);
+
+    // Estado para a validação do username no front-end
     const [isUsernameValid, setIsUsernameValid] = useState(false);
-    const [usernameFormatError, setUsernameFormatError] = useState('');
-    const [usernameTouched, setUsernameTouched] = useState(false);
-    const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
+    const [usernameInputError, setUsernameInputError] = useState(''); // RENOMEADO para evitar confusão com o erro de "formato"
 
-    // Novo estado para a validação do formato do username
-    const [isUsernameFormatValid, setIsUsernameFormatValid] = useState(false);
-
-    // Estado para controle geral da validação do formulário
-    const [isFormValid, setIsFormValid] = useState(false); // Começa como FALSE
-
+    // --- useEffect PARA VALIDAÇÃO DA SENHA EM TEMPO REAL ---
     useEffect(() => {
-        // Validação da senha em tempo real
-        const validatePassword = (pwd) => {
-            setHasMinMaxChars(pwd.length >= 8 && pwd.length <= 70);
-            setHasUpperCase(/[A-Z]/.test(pwd));
-            setHasSymbol(/[!@#$%^&*(),.?":{}|<>]/.test(pwd));
-        };
-        // Validação do username em tempo real
-        const validateUsername = (uname) => {
-            const regex = /^[a-zA-Z]+\.[a-zA-Z]+$/;
-            // O formato do username é válido se não estiver vazio E corresponder à regex
-            const isValid = uname.trim() !== '' && regex.test(uname);
-            setIsUsernameFormatValid(isValid);
+        setHasMinChars(password.length >= 8);
+        setHasUpperCase(/[A-Z]/.test(password));
+        setHasSymbol(SYMBOL_REGEX.test(password));
+    }, [password]);
 
-            // -- INÍCIO DOS CONSOLE.LOGS DE DEBUG DO USERNAME --
-            console.log('--- Validação Username ---');
-            console.log('Username digitado:', uname);
-            console.log('Username não vazio (uname.trim() !== ""):', uname.trim() !== '');
-            console.log('Regex username corresponde (regex.test(uname)):', regex.test(uname));
-            console.log('isUsernameFormatValid (resultado):', isValid);
-            console.log('--------------------------');
-            // -- FIM DOS CONSOLE.LOGS DE DEBUG DO USERNAME --
-        };
 
-        // Chame as funções de validação
-        validatePassword(password);
-        validateUsername(username);
+    // --- useEffect PARA VALIDAÇÃO DO USERNAME EM TEMPO REAL ---
+    useEffect(() => {
+        if (username.length > 0) { // Só valida se o campo não estiver vazio
+            const isValid = USERNAME_REGEX.test(username);
+            setIsUsernameValid(isValid); // Atualiza o estado de validade
 
-        // Calcular se o formulário inteiro é válido
-        const currentFormValidity = username.trim() !== '' &&
-                                    password.trim() !== '' &&
-                                    isUsernameFormatValid &&
-                                    hasMinMaxChars &&
-                                    hasUpperCase &&
-                                    hasSymbol;
-        setIsFormValid(currentFormValidity);
-
-        // -- INÍCIO DOS CONSOLE.LOGS DE DEBUG GERAIS DO FORMULÁRIO --
-        console.log('=== Validação Geral do Formulário ===');
-        console.log('username.trim() !== "" :', username.trim() !== '');
-        console.log('password.trim() !== "" :', password.trim() !== '');
-        console.log('isUsernameFormatValid:', isUsernameFormatValid);
-        console.log('hasMinMaxChars:', hasMinMaxChars);
-        console.log('hasUpperCase:', hasUpperCase);
-        console.log('hasSymbol:', hasSymbol);
-        console.log('isFormValid (resultado final):', currentFormValidity);
-        console.log('=====================================');
-        // -- FIM DOS CONSOLE.LOGS DE DEBUG GERAIS DO FORMULÁRIO --
-
-    }, [username, password, hasMinMaxChars, hasUpperCase, hasSymbol, isUsernameFormatValid]); // Adicionei todos os estados de validação como dependências
-        validatePassword(password);
-
-        const validateUsernameFormat = (uname) => {
-            if (!/^[a-zA-Z]+\.[a-zA-Z]+$/.test(uname)) {
-                setIsUsernameValid(false);
-                setUsernameFormatError('O nome de usuário deve ser no formato: nome.sobrenome');
+            if (!isValid) {
+                setUsernameInputError('O nome de usuário deve estar no formato: nome.sobrenome'); // Mensagem de erro para formato inválido
             } else {
-                setIsUsernameValid(true);
-                setUsernameFormatError('');
+                setUsernameInputError(''); // Limpa o erro se for válido
             }
-        };
-        validateUsernameFormat(username);
-    }, [username, password]);
+        } else {
+            // Se o campo estiver vazio, não mostra erro de formato, mas o considera inválido para submissão
+            setIsUsernameValid(false);
+            setUsernameInputError(''); // Não mostra erro de formato se o campo estiver vazio
+        }
+    }, [username]);
 
-    const handleUsernameChange = (e) => {
-        setUsername(e.target.value);
-        setUsernameTouched(true);
-    };
 
+    // --- useEffect PARA DEPURAR O ESTADO GERAL DO FORMULÁRIO E O BOTÃO ---
+    useEffect(() => {
+        // Console logs de depuração (podem ser removidos após testar)
+    }, [isUsernameValid, hasMinChars, hasUpperCase, hasSymbol, loading]);
+
+
+    // --- LÓGICA DE CADASTRO (handleSignup) ---
     const handleSignup = async (e) => {
         e.preventDefault();
-        setErrors([]);
+        setErrors([]); // Limpa erros anteriores
         setSuccessMessage('');
+        setLoading(true);
 
-        // Validação final antes de enviar
-        if (!isFormValid) {
-            const currentErrors = [];
-            if (username.trim() === '') {
-                currentErrors.push('O nome de usuário não pode estar vazio.');
-            } else if (!isUsernameFormatValid) {
-                currentErrors.push('O nome de usuário deve estar no formato: nome.sobrenome');
+        const currentFrontEndErrors = [];
+
+        // Validação final do username no momento da submissão
+        if (username.length === 0) {
+            currentFrontEndErrors.push('O nome de usuário não pode estar vazio.');
+        } else if (!isUsernameValid) { // Se não estiver vazio e o formato for inválido
+            currentFrontEndErrors.push('O nome de usuário deve ser no formato: nome.sobrenome');
+        }
+        
+        if (password.length === 0) {
+            currentFrontEndErrors.push('A senha não pode estar vazia.');
+        } else {
+            if (!hasMinChars) {
+                currentFrontEndErrors.push('A senha deve ter no mínimo 8 caracteres.');
             }
-            if (password.trim() === '') {
-                currentErrors.push('A senha não pode estar vazia.');
-            } else if (!(hasMinMaxChars && hasUpperCase && hasSymbol)) {
-                currentErrors.push('A senha não atende a todos os requisitos de segurança.');
+            if (!hasUpperCase) {
+                currentFrontEndErrors.push('A senha deve ter pelo menos uma letra maiúscula.');
             }
-            setErrors(currentErrors);
-            return; // Impede o envio se o formulário não for válido
+            if (!hasSymbol) {
+                currentFrontEndErrors.push('A senha deve ter pelo menos um símbolo.');
+            }
         }
 
-        setLoading(true);
+        if (currentFrontEndErrors.length > 0) {
+            setErrors(currentFrontEndErrors);
+            setLoading(false);
+            return; // Impede o envio da requisição se houver erros no front-end
+        }
+
+        // --- ENVIAR PARA O BACKEND ---
         try {
             const response = await axios.post('http://localhost:3000/auth/signup', { username, password });
             console.log('Cadastro bem-sucedido:', response.data);
             setSuccessMessage('Cadastro realizado com sucesso!');
-            setUsername(''); // Limpa o campo de username
-            setPassword(''); // Limpa o campo de password
-            // Redireciona para login após um pequeno atraso
             setTimeout(() => {
                 navigate('/login');
             }, 1500);
@@ -143,119 +123,62 @@ const Signup = () => {
         }
     };
 
+    // --- CONDIÇÃO PARA HABILITAR/DESABILITAR O BOTÃO ---
+    const isFormValid = isUsernameValid && hasMinChars && hasUpperCase && hasSymbol;
+
     return (
         <form onSubmit={handleSignup} className={styles.form}>
-            {/* Input do Username */}
+            {/* INPUT USERNAME */}
             <input
                 type="text"
-                placeholder="Nome de usuário (nome.sobrenome)"
+                placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                // Aplica a classe de inválido se o username não estiver vazio e não for válido
-                className={`${styles.input} ${username.trim() !== '' && !isUsernameFormatValid ? styles.invalidInput : ''}`}
+                className={styles.input}
             />
-            {username.trim() !== '' && !isUsernameFormatValid && (
-                <p className={styles.validationError}>Formato inválido. Use nome.sobrenome</p>
-            )}
-            {username.trim() === '' && errors.includes('O nome de usuário não pode estar vazio.') && (
-                <p className={styles.validationError}>O nome de usuário não pode estar vazio.</p>
+            {/* Lógica para exibir instrução ou erro de formato do username */}
+            {usernameInputError ? ( // Se houver um erro de formato específico, exibe ele
+                <p className={styles.error}>{usernameInputError}</p>
+            ) : ( // Se não houver erro de formato, verifica se o campo está vazio para exibir a instrução
+                username.length === 0 && ( // Esta condição faz a instrução sumir quando algo é digitado e é válido
+                    <p className={styles.instruction}>O nome de usuário deve ser no formato: nome.sobrenome</p>
+                )
             )}
 
-            {/* Input da Senha */}
+            {/* INPUT PASSWORD */}
             <input
                 type="password"
-                placeholder="Senha"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={styles.input}
             />
+            {/* REQUISITOS DA SENHA */}
             <div className={styles.passwordRequirements}>
-                <p className={`${styles.requirement} ${hasMinMaxChars ? styles.valid : ''}`}>
-                    <span className={styles.checkbox}>{hasMinMaxChars ? '✓' : '✗'}</span>
-                    Mínimo de 8 e máximo de 70 caracteres.
+                <p className={`${styles.requirement} ${hasMinChars ? styles.valid : ''}`}>
+                    <span className={styles.checkbox}>{hasMinChars ? '✓' : ''}</span>
+                    A senha deve ter no mínimo 8 caracteres.
                 </p>
                 <p className={`${styles.requirement} ${hasUpperCase ? styles.valid : ''}`}>
-                    <span className={styles.checkbox}>{hasUpperCase ? '✓' : '✗'}</span>
-                    Pelo menos uma letra maiúscula.
+                    <span className={styles.checkbox}>{hasUpperCase ? '✓' : ''}</span>
+                    A senha deve ter pelo menos uma letra maiúscula.
                 </p>
                 <p className={`${styles.requirement} ${hasSymbol ? styles.valid : ''}`}>
-                    <span className={styles.checkbox}>{hasSymbol ? '✓' : '✗'}</span>
-                    Pelo menos um símbolo (Ex: !@#$%&*).
+                    <span className={styles.checkbox}>{hasSymbol ? '✓' : ''}</span>
+                    A senha deve ter pelo menos um símbolo.
                 </p>
-            <div className={styles.usernameContainer}>
-                <label htmlFor="username" className={styles.label}>Username:</label>
-                <input
-                    type="text"
-                    id="username"
-                    placeholder="Username"
-                    value={username}
-                    onChange={handleUsernameChange}
-                    className={styles.input}
-                    onBlur={() => setUsernameTouched(true)}
-                    aria-label="Username"
-                    aria-describedby={usernameTouched && !isUsernameValid ? "usernameError" : null}
-                />
-                {isUsernameValid && <span className={styles.usernameValidCheck}>✓</span>}
             </div>
-            {usernameTouched && !isUsernameValid && <p className={styles.error} id="usernameError">{usernameFormatError}</p>}
 
-            <div className={styles.inputContainer}>
-                <label htmlFor="password" className={styles.label}>Password:</label>
-                <input
-                    type="password"
-                    id="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={styles.input}
-                    aria-label="Password"
-                    onFocus={() => setShowPasswordRequirements(true)}
-                    onBlur={() => {
-                        if (!password) {
-                            setShowPasswordRequirements(false);
-                        }
-                    }}
-                />
-            </div>
-            {password.trim() === '' && errors.includes('A senha não pode estar vazia.') && (
-                <p className={styles.validationError}>A senha não pode estar vazia.</p>
-            )}
-
-            {/* Botão de Cadastro */}
-            {/* O disabled agora considera o loading E a validação do formulário */}
-            <button type="submit" disabled={loading || !isFormValid} className={styles.button}>
-            {showPasswordRequirements && (
-                <div className={`${styles.passwordRequirements} ${showPasswordRequirements ? styles.visible : ''}`}>
-                    <p className={styles.requirement} style={{ color: hasMinMaxChars ? '#4caf50' : '#aaa' }}>
-                        <span className={styles.checkbox} style={{ borderColor: hasMinMaxChars ? '#4caf50' : '#ccc', backgroundColor: hasMinMaxChars ? '#4caf50' : 'transparent', color: hasMinMaxChars ? 'white' : 'transparent' }}>
-                            {hasMinMaxChars && '✓'}
-                        </span>
-                        A senha deve ter no mínimo 8 e máximo 70 caracteres.
-                    </p>
-                    <p className={styles.requirement} style={{ color: hasUpperCase ? '#4caf50' : '#aaa' }}>
-                        <span className={styles.checkbox} style={{ borderColor: hasUpperCase ? '#4caf50' : '#ccc', backgroundColor: hasUpperCase ? '#4caf50' : 'transparent', color: hasUpperCase ? 'white' : 'transparent' }}>
-                            {hasUpperCase && '✓'}
-                        </span>
-                        A senha deve ter pelo menos uma letra maiúscula.
-                    </p>
-                    <p className={styles.requirement} style={{ color: hasSymbol ? '#4caf50' : '#aaa' }}>
-                        <span className={styles.checkbox} style={{ borderColor: hasSymbol ? '#4caf50' : '#ccc', backgroundColor: hasSymbol ? '#4caf50' : 'transparent', color: hasSymbol ? 'white' : 'transparent' }}>
-                            {hasSymbol && '✓'}
-                        </span>
-                        A senha deve ter pelo menos um símbolo. Ex: !#$%"&
-                    </p>
-                </div>
-            )}
-
+            {/* BOTÃO CADASTRAR */}
             <button
                 type="submit"
-                disabled={loading || !(hasMinMaxChars && hasUpperCase && hasSymbol && isUsernameValid)}
+                disabled={loading || !isFormValid}
                 className={styles.button}
             >
                 {loading ? 'Cadastrando...' : 'Cadastrar'}
             </button>
 
-            {/* Mensagens de Erro e Sucesso */}
+            {/* MENSAGENS DE ERRO DO BACKEND (ou erros de validação inicial do front-end) */}
             {errors.length > 0 && (
                 <div className={styles.errorContainer}>
                     {errors.map((err, index) => (
@@ -263,6 +186,7 @@ const Signup = () => {
                     ))}
                 </div>
             )}
+            {/* MENSAGEM DE SUCESSO */}
             {successMessage && <p className={styles.success}>{successMessage}</p>}
         </form>
     );

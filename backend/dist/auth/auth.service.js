@@ -24,10 +24,13 @@ let AuthService = class AuthService {
         return this.usersService.signup(signupDto);
     }
     async validateUser(username, pass) {
+        console.log('AuthService: validateUser chamado para username:', username);
         const user = await this.usersService.validateUserCredentials(username, pass);
         if (!user) {
+            console.log('AuthService: validateUser: Usuário NÃO validado. Credenciais inválidas.');
             return null;
         }
+        console.log('AuthService: validateUser: Usuário validado com sucesso:', user.username);
         return user;
     }
     async login(user) {

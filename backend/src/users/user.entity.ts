@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, Unique } from 'typeorm';
-import { IsString, IsNotEmpty, IsAlphanumeric } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 @Entity()
 @Unique(["username"]) // Garante que o username seja único
@@ -10,7 +10,6 @@ export class User {
     @Column()
     @IsString()
     @IsNotEmpty()
-    @IsAlphanumeric() // Garante que o username seja alfanumérico
     username: string;
 
     @Column()

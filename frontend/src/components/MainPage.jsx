@@ -1,39 +1,48 @@
+// frontend/src/components/MainPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './MainPage.module.css'; // Importa os estilos definidos no arquivo MainPage.module.css
-import axios from 'axios'; // Importa a biblioteca axios para fazer requisições HTTP
+import styles from './MainPage.module.css';
+import api from '../api/axios'; // Importa a instância customizada do Axios com o interceptor
 
 const MainPage = () => {
-  const navigate = useNavigate(); // Hook para navegar entre as rotas
+  const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('accessToken'); // Tenta obter o token
+      
       if (token) {
         try {
-          const response = await axios.get('http://localhost:3000/users/me', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          // Usa 'api' (sua instância configurada do Axios). O token será adicionado automaticamente.
+          const response = await api.get('/users/me'); 
           setUserData(response.data);
         } catch (err) {
-          console.error('Erro ao buscar dados do usuário', err);
-          setError('Erro ao carregar informações do usuário.');
+          console.error('Erro ao buscar dados do usuário:', err);
+          // Se o erro for 401 (Não Autorizado), significa que o token é inválido/expirado
+          if (err.response && err.response.status === 401) {
+            localStorage.removeItem('accessToken'); // Remove o token inválido
+            navigate('/login'); // Redireciona para o login
+            setError('Sessão expirada. Por favor, faça login novamente.');
+          } else {
+            setError('Erro ao carregar informações do usuário.');
+          }
         } finally {
           setLoading(false);
         }
       } else {
+        // Se não há token no localStorage, redireciona para login
         navigate('/login');
       }
     };
 
     fetchUserData();
-  }, [navigate]);
+  }, [navigate]); // navigate é uma dependência do useEffect
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('accessToken'); // Remove o token ao fazer logout
     navigate('/login');
   };
 
@@ -66,7 +75,6 @@ const MainPage = () => {
       <div className={styles.actionsPanel}>
         <button className={styles.actionButton}>Editar Perfil</button>
         <button className={styles.actionButton}>Ver Notificações</button>
-        {/* Adicione mais botões conforme necessário */}
       </div>
 
       <div className={styles.tipBox}>
@@ -88,7 +96,6 @@ const MainPage = () => {
       <button onClick={handleLogout} className={styles.logoutButton}>
         Sair
       </button>
-      {/* Aqui você pode adicionar mais conteúdo para a sua página principal */}
     </div>
   );
 };

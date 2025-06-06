@@ -9,7 +9,7 @@ async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, {
         cors: {
             origin: 'http://localhost:3001',
-            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
             credentials: true,
             allowedHeaders: 'Content-Type, Authorization',
         },

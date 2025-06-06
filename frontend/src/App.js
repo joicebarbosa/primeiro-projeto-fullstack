@@ -23,8 +23,7 @@ const App = () => {
         justifyContent: 'center',
       }}
     >
-      <BackendTest /> {/* <-- Componente de teste do backend adicionado aqui */}
-
+   
       <Router>
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
