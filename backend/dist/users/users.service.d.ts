@@ -1,11 +1,9 @@
-import { Repository } from 'typeorm';
-import { User } from '../users/user.entity';
+import { PrismaService } from '../prisma/prisma.service';
 import { SignupDto } from '../auth/dto/signup.dto';
 export declare class UsersService {
-    private usersRepository;
-    constructor(usersRepository: Repository<User>);
-    signup(signupDto: SignupDto): Promise<User>;
-    findOneByUsername(username: string): Promise<User | null>;
-    findOneById(id: number): Promise<User | null>;
-    validateUserCredentials(username: string, pass: string): Promise<User | null>;
+    private prisma;
+    constructor(prisma: PrismaService);
+    signup(signupDto: SignupDto): Promise<any>;
+    validateUserCredentials(username: string, pass: string): Promise<any | null>;
+    findOneById(id: number): Promise<any | null>;
 }

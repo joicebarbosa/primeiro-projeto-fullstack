@@ -8,65 +8,81 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
-const typeorm_1 = require("@nestjs/typeorm");
-const typeorm_2 = require("typeorm");
-const user_entity_1 = require("../users/user.entity");
 const bcrypt = require("bcryptjs");
+const prisma_service_1 = require("../prisma/prisma.service");
 let UsersService = class UsersService {
-    usersRepository;
-    constructor(usersRepository) {
-        this.usersRepository = usersRepository;
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
     }
     async signup(signupDto) {
-        const { username, password } = signupDto;
-        const existingUser = await this.usersRepository.findOne({ where: { username } });
-        if (existingUser) {
-            throw new common_1.ConflictException('Nome de usuário já existe.');
+        const hashedPassword = await bcrypt.hash(signupDto.password, 10);
+        try {
+            const newUser = await this.prisma.user.create({
+                data: {
+                    username: signupDto.username,
+                    password: hashedPassword,
+                    email: signupDto.email,
+                    firstName: signupDto.firstName,
+                    lastName: signupDto.lastName,
+                },
+                select: {
+                    id: true,
+                    username: true,
+                    email: true,
+                    firstName: true,
+                    lastName: true,
+                    createdAt: true,
+                },
+            });
+            return newUser;
         }
-        const salt = await bcrypt.genSalt();
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const user = this.usersRepository.create({
-            username,
-            password: hashedPassword,
-        });
-        await this.usersRepository.save(user);
-        const { password: _, ...result } = user;
-        return result;
-    }
-    async findOneByUsername(username) {
-        return this.usersRepository.findOne({ where: { username } });
-    }
-    async findOneById(id) {
-        return this.usersRepository.findOne({ where: { id } });
+        catch (error) {
+            if (error.code === 'P2002') {
+                throw new common_1.BadRequestException('Nome de usuário ou email já em uso.');
+            }
+            throw error;
+        }
     }
     async validateUserCredentials(username, pass) {
-        console.log('UsersService: validateUserCredentials chamado para username:', username);
-        const user = await this.findOneByUsername(username);
+        const user = await this.prisma.user.findUnique({
+            where: { username },
+        });
         if (!user) {
-            console.log('UsersService: validateUserCredentials: Usuário NÃO encontrado no DB:', username);
+            console.log(`UsersService: validateUserCredentials: Usuário NÃO encontrado no DB: ${username}`);
             return null;
         }
-        console.log('UsersService: validateUserCredentials: Usuário encontrado:', user.username);
-        const isPasswordMatching = await bcrypt.compare(pass, user.password);
-        if (!isPasswordMatching) {
-            console.log('UsersService: validateUserCredentials: Senha INCORRETA para', username);
+        console.log(`UsersService: validateUserCredentials: Usuário encontrado: ${username}`);
+        const isMatch = await bcrypt.compare(pass, user.password);
+        if (!isMatch) {
+            console.log(`UsersService: validateUserCredentials: Senha INCORRETA para ${username}`);
             return null;
         }
-        console.log('UsersService: validateUserCredentials: Senha CORRETA para', username);
+        console.log(`UsersService: validateUserCredentials: Senha CORRETA para ${username}`);
         const { password, ...result } = user;
         return result;
+    }
+    async findOneById(id) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                createdAt: true,
+            },
+        });
+        return user;
     }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

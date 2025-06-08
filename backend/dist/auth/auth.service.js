@@ -34,9 +34,12 @@ let AuthService = class AuthService {
         return user;
     }
     async login(user) {
+        console.log('AuthService: login chamado para gerar JWT para usuário:', user.username);
         const payload = { username: user.username, sub: user.id };
+        const token = this.jwtService.sign(payload);
+        console.log('AuthService: JWT gerado com sucesso para', user.username, 'Token:', token);
         return {
-            access_token: this.jwtService.sign(payload),
+            access_token: token,
         };
     }
     async validateUserByPayload(payload) {

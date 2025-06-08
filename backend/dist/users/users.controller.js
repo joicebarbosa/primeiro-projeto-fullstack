@@ -16,7 +16,7 @@ exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
 const signup_dto_1 = require("../auth/dto/signup.dto");
-const login_dto_1 = require("../auth/dto/login.dto");
+const passport_1 = require("@nestjs/passport");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
@@ -25,8 +25,8 @@ let UsersController = class UsersController {
     async signup(signupDto) {
         return this.usersService.signup(signupDto);
     }
-    async login(loginDto) {
-        return { message: 'Login de exemplo! Implemente a lógica real aqui.' };
+    getProfile(req) {
+        return req.user;
     }
 };
 exports.UsersController = UsersController;
@@ -38,12 +38,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "signup", null);
 __decorate([
-    (0, common_1.Post)('login'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Get)('me'),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [login_dto_1.LoginDto]),
-    __metadata("design:returntype", Promise)
-], UsersController.prototype, "login", null);
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "getProfile", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])
