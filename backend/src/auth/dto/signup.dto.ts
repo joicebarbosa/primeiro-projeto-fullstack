@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, MinLength, Matches, IsEmail, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, MinLength, Matches, IsOptional } from 'class-validator';
 
 export class SignupDto {
   @IsString()
@@ -17,7 +17,6 @@ export class SignupDto {
   })
   password: string;
 
-  @IsEmail({}, { message: 'Email inválido' }) // Validação para formato de email
   @IsNotEmpty({ message: 'Email não pode ser vazio' })
   email: string; // Adicionado o campo de email
 

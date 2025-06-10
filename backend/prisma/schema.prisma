@@ -9,12 +9,13 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement()) // ID primário, auto-incrementável
-  username  String   @unique @db.VarChar(191)      // Nome de usuário, deve ser único, com limite de 191 caracteres para índices únicos no MySQL
-  email     String   @unique @db.VarChar(191)      // Email, deve ser único, com limite de 191 caracteres para índices únicos no MySQL
-  password  String   @db.VarChar(255)            // Senha (hash), tipo VARCHAR com um bom tamanho
-  firstName String?  @db.VarChar(255)            // Primeiro nome, opcional (String?), tipo VARCHAR
-  lastName  String?  @db.VarChar(255)             // Sobrenome, opcional (String?), tipo VARCHAR
-  createdAt DateTime @default(now())             // Data de criação, preenchido automaticamente
-  updatedAt DateTime @updatedAt                  // Data de atualização, atualizado automaticamente
+  id        Int      @id @default(autoincrement())
+  username  String   @unique @db.VarChar(191)
+  password  String   @db.VarChar(255)
+  firstName String?  @db.VarChar(255)
+  lastName  String?  @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user") // 
 }

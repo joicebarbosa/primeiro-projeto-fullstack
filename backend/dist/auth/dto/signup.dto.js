@@ -37,7 +37,6 @@ __decorate([
     __metadata("design:type", String)
 ], SignupDto.prototype, "password", void 0);
 __decorate([
-    (0, class_validator_1.IsEmail)({}, { message: 'Email inválido' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'Email não pode ser vazio' }),
     __metadata("design:type", String)
 ], SignupDto.prototype, "email", void 0);

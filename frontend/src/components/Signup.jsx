@@ -10,10 +10,9 @@ const SYMBOL_REGEX = /[!@#$%^&*(),.?":{}|<>]/; // Alinhada com o backend
 const Signup = () => {
     // --- ESTADOS ---
     const [username, setUsername] = useState('');
-    const [email, setEmail] = useState(''); // <-- NOVO ESTADO: EMAIL
     const [password, setPassword] = useState('');
     const [firstName, setFirstName] = useState(''); // <-- NOVO ESTADO: FIRST NAME (opcional)
-    const [lastName, setLastName] = useState('');   // <-- NOVO ESTADO: LAST NAME (opcional)
+    const [lastName, setLastName] = useState('');   // <-- NOVO ESTADO: LAST NAME (opcional)
 
     const [errors, setErrors] = useState([]); // Para erros do backend ou validação inicial do front-end
     const [successMessage, setSuccessMessage] = useState('');
@@ -28,10 +27,6 @@ const Signup = () => {
     // Estado para a validação do username no front-end
     const [isUsernameValid, setIsUsernameValid] = useState(false);
     const [usernameInputError, setUsernameInputError] = useState('');
-
-    // <-- NOVO ESTADO: Validação do EMAIL no front-end
-    const [isEmailValid, setIsEmailValid] = useState(false);
-    const [emailInputError, setEmailInputError] = useState('');
 
     // --- useEffect PARA VALIDAÇÃO DA SENHA EM TEMPO REAL ---
     useEffect(() => {
@@ -57,25 +52,7 @@ const Signup = () => {
         }
     }, [username]);
 
-    // --- NOVO useEffect PARA VALIDAÇÃO DO EMAIL EM TEMPO REAL ---
-    useEffect(() => {
-        if (email.length > 0) {
-            // Regex simples para email. O backend fará a validação mais robusta.
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const isValid = emailRegex.test(email);
-            setIsEmailValid(isValid);
-
-            if (!isValid) {
-                setEmailInputError('Por favor, insira um email válido.');
-            } else {
-                setEmailInputError('');
-            }
-        } else {
-            setIsEmailValid(false);
-            setEmailInputError(''); // Limpa o erro se o campo estiver vazio
-        }
-    }, [email]);
-
+    // O useEffect anterior para validação do email foi removido.
 
     // --- LÓGICA DE CADASTRO (handleSignup) ---
     const handleSignup = async (e) => {
@@ -93,12 +70,7 @@ const Signup = () => {
             currentFrontEndErrors.push('O nome de usuário deve ser no formato: nome.sobrenome');
         }
 
-        // Validação final do email
-        if (email.length === 0) {
-            currentFrontEndErrors.push('O email não pode estar vazio.');
-        } else if (!isEmailValid) {
-            currentFrontEndErrors.push('Por favor, insira um email válido.');
-        }
+        // A validação final do email foi removida.
 
         // Validação final da senha
         if (password.length === 0) {
@@ -125,10 +97,9 @@ const Signup = () => {
         try {
             const response = await axios.post('http://localhost:3000/auth/signup', {
                 username,
-                email,      // <-- ENVIANDO O EMAIL
                 password,
-                firstName,  // <-- ENVIANDO O FIRST NAME (pode ser vazio se opcional)
-                lastName,   // <-- ENVIANDO O LAST NAME (pode ser vazio se opcional)
+                firstName,  // <-- ENVIANDO O FIRST NAME (pode ser vazio se opcional)
+                lastName,   // <-- ENVIANDO O LAST NAME (pode ser vazio se opcional)
             });
             console.log('Cadastro bem-sucedido:', response.data);
             setSuccessMessage('Cadastro realizado com sucesso!');
@@ -152,8 +123,8 @@ const Signup = () => {
     };
 
     // --- CONDIÇÃO PARA HABILITAR/DESABILITAR O BOTÃO ---
-    // Agora o formulário é válido se todos os campos obrigatórios do FE forem válidos
-    const isFormValid = isUsernameValid && isEmailValid && hasMinChars && hasUpperCase && hasSymbol;
+    // O formulário é válido se todos os campos obrigatórios do FE (username, senha) forem válidos
+    const isFormValid = isUsernameValid && hasMinChars && hasUpperCase && hasSymbol;
 
     return (
         <form onSubmit={handleSignup} className={styles.form}>
@@ -170,21 +141,6 @@ const Signup = () => {
             {!usernameInputError && username.length === 0 && (
                 <p className={styles.instruction}>O nome de usuário deve ser no formato: nome.sobrenome</p>
             )}
-
-            {/* INPUT EMAIL */}
-            <input
-                type="email" // Usar type="email" ajuda na validação nativa do navegador
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={styles.input}
-                required // Adicione required se o campo é obrigatório (e no DTO)
-            />
-            {emailInputError && <p className={styles.error}>{emailInputError}</p>}
-            {!emailInputError && email.length === 0 && (
-                <p className={styles.instruction}>O email é obrigatório.</p>
-            )}
-
 
             {/* INPUT PASSWORD */}
             <input

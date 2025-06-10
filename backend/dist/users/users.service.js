@@ -11,8 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
-const bcrypt = require("bcryptjs");
 const prisma_service_1 = require("../prisma/prisma.service");
+const bcrypt = require("bcrypt");
 let UsersService = class UsersService {
     prisma;
     constructor(prisma) {
@@ -21,29 +21,24 @@ let UsersService = class UsersService {
     async signup(signupDto) {
         const hashedPassword = await bcrypt.hash(signupDto.password, 10);
         try {
+            console.log('Dados enviados para o Prisma:', {
+                username: signupDto.username,
+                password: hashedPassword,
+                firstName: signupDto.firstName,
+                lastName: signupDto.lastName,
+            });
             const newUser = await this.prisma.user.create({
                 data: {
                     username: signupDto.username,
                     password: hashedPassword,
-                    email: signupDto.email,
                     firstName: signupDto.firstName,
                     lastName: signupDto.lastName,
-                },
-                select: {
-                    id: true,
-                    username: true,
-                    email: true,
-                    firstName: true,
-                    lastName: true,
-                    createdAt: true,
                 },
             });
             return newUser;
         }
         catch (error) {
-            if (error.code === 'P2002') {
-                throw new common_1.BadRequestException('Nome de usuário ou email já em uso.');
-            }
+            console.error('Erro no signup (possivelmente UNIQUE constraint ou outro):', error);
             throw error;
         }
     }
@@ -71,10 +66,10 @@ let UsersService = class UsersService {
             select: {
                 id: true,
                 username: true,
-                email: true,
                 firstName: true,
                 lastName: true,
                 createdAt: true,
+                updatedAt: true,
             },
         });
         return user;
