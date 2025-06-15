@@ -1,9 +1,7 @@
-// backend/src/users/users.service.ts
-
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service'; // Ajuste o caminho se necessário
+import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { SignupDto } from '../auth/dto/signup.dto'; // Verifique o caminho correto para o DTO
+import { SignupDto } from '../auth/dto/signup.dto';
 
 @Injectable()
 export class UsersService {
@@ -14,6 +12,7 @@ export class UsersService {
     try {
       console.log('Dados enviados para o Prisma:', {
         username: signupDto.username,
+        // REMOVIDO: email: signupDto.email, // Já removido, garantindo que não há referência aqui
         password: hashedPassword,
         firstName: signupDto.firstName,
         lastName: signupDto.lastName,
@@ -26,16 +25,17 @@ export class UsersService {
           lastName: signupDto.lastName,
         },
       });
+      // Importante: No seu modelo Prisma, 'id', 'createdAt' e 'updatedAt' são gerados automaticamente.
+      // Certifique-se de que não está esperando 'email' aqui se ele foi removido do schema.
       return newUser;
     } catch (error) {
-      console.error('Erro no signup (possivelmente UNIQUE constraint ou outro):', error);
-      throw error; // Re-lança o erro para o controlador lidar
+      console.error('Erro no signup:', error);
+      throw error;
     }
   }
 
-  // >>>>>> VERIFIQUE SE ESTES MÉTODOS ESTÃO DENTRO DA CLASSE UsersService <<<<<<<
-  // Se estiverem fora, mova-os para dentro da classe.
   async validateUserCredentials(username: string, pass: string): Promise<any | null> {
+    // Certifique-se de que o findUnique NÃO está tentando buscar 'email'
     const user = await this.prisma.user.findUnique({
       where: { username },
     });
@@ -47,6 +47,7 @@ export class UsersService {
 
     console.log(`UsersService: validateUserCredentials: Usuário encontrado: ${username}`);
 
+    // A senha do usuário no DB pode ser criptografada. Comparar com a senha fornecida.
     const isMatch = await bcrypt.compare(pass, user.password);
 
     if (!isMatch) {
@@ -56,13 +57,15 @@ export class UsersService {
 
     console.log(`UsersService: validateUserCredentials: Senha CORRETA para ${username}`);
 
+    // Retorna o usuário sem a senha (para segurança)
     const { password, ...result } = user;
-    return result; // Retorna o usuário sem a senha hashed
+    return result;
   }
 
   async findOneById(id: number): Promise<any | null> {
     const user = await this.prisma.user.findUnique({
       where: { id },
+      // Certifique-se de que o select NÃO inclui 'email'
       select: {
         id: true,
         username: true,
@@ -73,6 +76,6 @@ export class UsersService {
       },
     });
 
-    return user; // Já retorna sem a senha por causa do 'select'
+    return user;
   }
 }

@@ -52,7 +52,7 @@ const Signup = () => {
         }
     }, [username]);
 
-    // O useEffect anterior para validação do email foi removido.
+    // O useEffect anterior para validação do email foi removido neste código.
 
     // --- LÓGICA DE CADASTRO (handleSignup) ---
     const handleSignup = async (e) => {
@@ -141,6 +141,9 @@ const Signup = () => {
             {!usernameInputError && username.length === 0 && (
                 <p className={styles.instruction}>O nome de usuário deve ser no formato: nome.sobrenome</p>
             )}
+
+            {/* REMOVIDO: INPUT EMAIL */}
+            {/* O campo de email foi removido do código, não há necessidade de input aqui. */}
 
             {/* INPUT PASSWORD */}
             <input

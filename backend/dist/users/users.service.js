@@ -38,7 +38,7 @@ let UsersService = class UsersService {
             return newUser;
         }
         catch (error) {
-            console.error('Erro no signup (possivelmente UNIQUE constraint ou outro):', error);
+            console.error('Erro no signup:', error);
             throw error;
         }
     }

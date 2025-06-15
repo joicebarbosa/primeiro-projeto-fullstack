@@ -14,7 +14,6 @@ const class_validator_1 = require("class-validator");
 class SignupDto {
     username;
     password;
-    email;
     firstName;
     lastName;
 }
@@ -37,19 +36,13 @@ __decorate([
     __metadata("design:type", String)
 ], SignupDto.prototype, "password", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)({ message: 'Email não pode ser vazio' }),
-    __metadata("design:type", String)
-], SignupDto.prototype, "email", void 0);
-__decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsNotEmpty)({ message: 'Primeiro nome não pode ser vazio' }),
     __metadata("design:type", String)
 ], SignupDto.prototype, "firstName", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsNotEmpty)({ message: 'Sobrenome não pode ser vazio' }),
     __metadata("design:type", String)
 ], SignupDto.prototype, "lastName", void 0);
 //# sourceMappingURL=signup.dto.js.map

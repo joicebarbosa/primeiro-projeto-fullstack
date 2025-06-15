@@ -1,21 +1,14 @@
-
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
   id        Int      @id @default(autoincrement())
-  username  String   @unique @db.VarChar(191)
-  password  String   @db.VarChar(255)
-  firstName String?  @db.VarChar(255)
-  lastName  String?  @db.VarChar(255)
+  username  String   @unique
+  password  String
+  firstName String?
+  lastName  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@map("user") // 
 }

@@ -1,3 +1,4 @@
+
 import { IsString, IsNotEmpty, MinLength, Matches, IsOptional } from 'class-validator';
 
 export class SignupDto {
@@ -17,16 +18,16 @@ export class SignupDto {
   })
   password: string;
 
-  @IsNotEmpty({ message: 'Email não pode ser vazio' })
-  email: string; // Adicionado o campo de email
+  // REMOVIDO: email: string; // Adicionado o campo de email
 
   @IsString()
-  @IsOptional() // Use IsOptional se você não quer que firstName seja obrigatório
-  @IsNotEmpty({ message: 'Primeiro nome não pode ser vazio' }) // Adicione se for obrigatório
+  @IsOptional() // Mantido como opcional, como no seu schema.prisma
+  // REMOVIDO: @IsNotEmpty({ message: 'Primeiro nome não pode ser vazio' }) // Removido para ser consistente com IsOptional
   firstName?: string; // Adicionado o campo de primeiro nome
 
   @IsString()
-  @IsOptional() // Use IsOptional se você não quer que lastName seja obrigatório
-  @IsNotEmpty({ message: 'Sobrenome não pode ser vazio' }) // Adicione se for obrigatório
+  @IsOptional() // Mantido como opcional, como no seu schema.prisma
+  // REMOVIDO: @IsNotEmpty({ message: 'Sobrenome não pode ser vazio' }) // Removido para ser consistente com IsOptional
   lastName?: string; // Adicionado o campo de sobrenome
 }
+
